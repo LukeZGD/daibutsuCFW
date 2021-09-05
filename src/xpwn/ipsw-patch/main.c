@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-//#include <pref.h>
+#include <pref.h>
 
 //char endianness;
 
@@ -672,7 +672,7 @@ int main(int argc, char* argv[]) {
             chmodFile("/usr/libexec/CrashHousekeeping", 0755, rootVolume);
         }
     }
-    /*
+
     if(needPref){
         XLOG(0, "[*] Executing needPref...\n");
         const char *prefPath = "/private/var/mobile/Library/Preferences/com.apple.springboard.plist";
@@ -684,7 +684,7 @@ int main(int argc, char* argv[]) {
         chmodFile(prefPath, 0600, rootVolume); // rw-/---/---
         chownFile(prefPath, 501, 501, rootVolume); // mobile:mobile
     }
-    */
+
     if(pRamdiskKey) {
         ramdiskFS = IOFuncFromAbstractFile(openAbstractFile2(getFileFromOutputStateForOverwrite(&outputState, ramdiskFSPathInIPSW), pRamdiskKey, pRamdiskIV));
     } else {
