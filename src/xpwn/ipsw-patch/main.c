@@ -20,9 +20,9 @@
 #include <windows.h>
 #endif
 
-#include <pref.h>
+//#include <pref.h>
 
-char endianness;
+//char endianness;
 
 static char* tmpFile = NULL;
 
@@ -60,12 +60,53 @@ void closeRoot(void* buffer) {
     }
 }
 
+int replaceMatching(Dictionary* orig, Dictionary *new){
+    DictValue *patchDict = new->values;
+    int dirty = FALSE;
+
+    while(patchDict != NULL) {
+        char *key = ((DictValue*)patchDict)->key;
+
+        if (patchDict->type == DictionaryType) {
+            Dictionary *norig = (Dictionary *)getValueByKey(orig,key);
+            if (norig) {
+                XLOG(0, "+ key=%s\n",key);
+                replaceMatching(norig,(Dictionary *)patchDict);
+                XLOG(0, "- key=%s\n",key);
+            }
+        }else{
+            DictValue *origValue = getValueByKey(orig,key);
+            if (origValue) {
+                if (origValue->type == DataType) {
+                    DataValue *newValue = (DataValue *)getValueByKey(new,key); //assuming replacing with same type
+
+                    free(((DataValue*)origValue)->value);
+                    unsigned char *buf = malloc(newValue->len);
+                    memcpy(buf,newValue->value,newValue->len);
+
+                    ((DataValue *)origValue)->value = buf;
+
+                    XLOG(0, "replacing key=%s\n",key);
+                }else{
+                    XLOG(0, "Error: replacing values of type %d currently not implemented\n",origValue->type);
+                    return -1;
+                }
+            }
+        }
+
+        patchDict = ((Dictionary*)patchDict)->dValue.next;
+    }
+
+    return dirty;
+}
+
 int main(int argc, char* argv[]) {
     init_libxpwn(&argc, argv);
     
     Dictionary* info;
     Dictionary* firmwarePatches;
     Dictionary* patchDict;
+    Dictionary* BuildIdentitiesPatches;
     ArrayValue* patchArray;
     
     void* buffer;
@@ -114,7 +155,7 @@ int main(int argc, char* argv[]) {
     
     void* imageBuffer;
     size_t imageSize;
-    
+
     char updateBB = FALSE;
     char useMemory = FALSE;
     
@@ -332,7 +373,23 @@ int main(int argc, char* argv[]) {
         
         patchDict = (Dictionary*) patchDict->dValue.next;
     }
-    
+
+    ArrayValue *buildIdentities = (ArrayValue *)getValueByKey(manifest, "BuildIdentities");
+    if (buildIdentities) {
+        BuildIdentitiesPatches = (Dictionary*)getValueByKey(info, "BuildIdentitiesPatches");
+        for (i = 0; i < buildIdentities->size; i++) {
+            StringValue *path;
+            Dictionary *dict = (Dictionary *)buildIdentities->values[i];
+            BuildIdentitiesPatches = (Dictionary*)getValueByKey(info, "BuildIdentitiesPatches");
+            int myret = replaceMatching(dict,BuildIdentitiesPatches);
+            XLOG(0, "\n");
+            if (myret == -1) {
+                XLOG(0, "Error: something went wrong\n");
+                return -1;
+            }else if (myret >0) manifestDirty = TRUE;
+        }
+    }
+
     if (manifestDirty && manifest) {
         manifestFile = getFileFromOutputStateForReplace(&outputState, "BuildManifest.plist");
         if (manifestFile) {
@@ -615,7 +672,7 @@ int main(int argc, char* argv[]) {
             chmodFile("/usr/libexec/CrashHousekeeping", 0755, rootVolume);
         }
     }
-    
+    /*
     if(needPref){
         XLOG(0, "[*] Executing needPref...\n");
         const char *prefPath = "/private/var/mobile/Library/Preferences/com.apple.springboard.plist";
@@ -627,7 +684,7 @@ int main(int argc, char* argv[]) {
         chmodFile(prefPath, 0600, rootVolume); // rw-/---/---
         chownFile(prefPath, 501, 501, rootVolume); // mobile:mobile
     }
-    
+    */
     if(pRamdiskKey) {
         ramdiskFS = IOFuncFromAbstractFile(openAbstractFile2(getFileFromOutputStateForOverwrite(&outputState, ramdiskFSPathInIPSW), pRamdiskKey, pRamdiskIV));
     } else {

@@ -1944,23 +1944,23 @@ int restore_send_baseband_data(restored_client_t restore, struct idevicerestore_
 	
     if (client->basebandPath) {
         const char *device = client->device->product_type;
-        
+
         plist_t node = NULL;
         char *version = 0;
         char *build = 0;
         node = plist_dict_get_item(buildmanifest2, "ProductVersion");
         plist_get_string_val(node, &version);
-        
+
         node = plist_dict_get_item(buildmanifest2, "ProductBuildVersion");
         plist_get_string_val(node, &build);
-        
-        
-        
+
+
+
         if (bbfw_path || plist_get_node_type(bbfw_path) != PLIST_STRING) {
             printf("Downloading baseband firmware.\n");
             plist_get_string_val(bbfw_path, &bbfwpath);
-            
-            
+
+
             if (!strcmp(client->device->product_type, "iPhone3,3")) {
                 /*
                  device_name  : iPhone 4
@@ -1980,7 +1980,7 @@ int restore_send_baseband_data(restored_client_t restore, struct idevicerestore_
                 } else {
                     partialzip_download_file(n92_fw, phoenix_712_path, client->basebandPath);
                 }
-                
+
             } else if (!strcmp(client->device->product_type, "iPhone4,1")) {
                 /*
                  device_name  : iPhone 4s
