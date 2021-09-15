@@ -562,7 +562,7 @@ int main(int argc, char* argv[]) {
         tarFile->close(tarFile);
     }
     
-    if(hasCydia){
+    if(hasCydia == 1){
         XLOG(0, "[*] Installing Cydia package\n");
         AbstractFile* cydiaTarFile;
         
@@ -599,7 +599,7 @@ int main(int argc, char* argv[]) {
         move(movingAllFiles[4], movingAllFiles[5], rootVolume);
     }
     
-    if(hasUntether){
+    if(hasUntether == 1){
         XLOG(0, "[*] Installing untether package\n");
         AbstractFile* untetherTarFile;
         
