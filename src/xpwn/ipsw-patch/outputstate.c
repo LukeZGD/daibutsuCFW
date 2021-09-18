@@ -289,7 +289,7 @@ char* createTempFile() {
 	GetTempFileName(tmpFilePath, "pwn", 0, tmpFileBuffer);
 	CloseHandle(CreateFile(tmpFilePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL));
 #else
-	strcpy(tmpFileBuffer, "/tmp/pwnXXXXXX");
+	strcpy(tmpFileBuffer, "../tmp/pwnXXXXXX");
 	close(mkstemp(tmpFileBuffer));
 	FILE* tFile = fopen(tmpFileBuffer, "wb");
 	fclose(tFile);
