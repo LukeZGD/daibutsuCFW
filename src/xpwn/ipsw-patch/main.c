@@ -60,53 +60,12 @@ void closeRoot(void* buffer) {
     }
 }
 
-int replaceMatching(Dictionary* orig, Dictionary *new){
-    DictValue *patchDict = new->values;
-    int dirty = FALSE;
-
-    while(patchDict != NULL) {
-        char *key = ((DictValue*)patchDict)->key;
-
-        if (patchDict->type == DictionaryType) {
-            Dictionary *norig = (Dictionary *)getValueByKey(orig,key);
-            if (norig) {
-                XLOG(0, "+ key=%s\n",key);
-                replaceMatching(norig,(Dictionary *)patchDict);
-                XLOG(0, "- key=%s\n",key);
-            }
-        }else{
-            DictValue *origValue = getValueByKey(orig,key);
-            if (origValue) {
-                if (origValue->type == DataType) {
-                    DataValue *newValue = (DataValue *)getValueByKey(new,key); //assuming replacing with same type
-
-                    free(((DataValue*)origValue)->value);
-                    unsigned char *buf = malloc(newValue->len);
-                    memcpy(buf,newValue->value,newValue->len);
-
-                    ((DataValue *)origValue)->value = buf;
-
-                    XLOG(0, "replacing key=%s\n",key);
-                }else{
-                    XLOG(0, "Error: replacing values of type %d currently not implemented\n",origValue->type);
-                    return -1;
-                }
-            }
-        }
-
-        patchDict = ((Dictionary*)patchDict)->dValue.next;
-    }
-
-    return dirty;
-}
-
 int main(int argc, char* argv[]) {
     init_libxpwn(&argc, argv);
     
     Dictionary* info;
     Dictionary* firmwarePatches;
     Dictionary* patchDict;
-    Dictionary* BuildIdentitiesPatches;
     ArrayValue* patchArray;
     
     void* buffer;
@@ -155,7 +114,7 @@ int main(int argc, char* argv[]) {
     
     void* imageBuffer;
     size_t imageSize;
-
+    
     char updateBB = FALSE;
     char useMemory = FALSE;
     
@@ -248,15 +207,15 @@ int main(int argc, char* argv[]) {
         XLOG(0, "error: Could not load IPSW\n");
         exit(1);
     }
-    
+
     firmwarePatches = (Dictionary*)getValueByKey(info, "FilesystemPatches");
-    
+
     int j;
     for(j = 0; j < numToRemove; j++) {
         removeKey(firmwarePatches, argv[toRemove[j]]);
     }
     free(toRemove);
-    
+
     manifestFile = getFileFromOutputState(&outputState, "BuildManifest.plist");
     if (manifestFile) {
         size_t fileLength = manifestFile->getLength(manifestFile);
@@ -280,37 +239,37 @@ int main(int argc, char* argv[]) {
         needPref = ((BoolValue*) getValueByKey(info, "needPref"))->value;
         XLOG(0, "[+] needPref ? %d...\n", needPref);
     }
-    
+
     firmwarePatches = (Dictionary*)getValueByKey(info, "FirmwarePatches");
     patchDict = (Dictionary*) firmwarePatches->values;
     while(patchDict != NULL) {
         fileValue = (StringValue*) getValueByKey(patchDict, "File");
-        
+
         StringValue* keyValue = (StringValue*) getValueByKey(patchDict, "Key");
         StringValue* ivValue = (StringValue*) getValueByKey(patchDict, "IV");
         pKey = NULL;
         pIV = NULL;
-        
+
         if(keyValue) {
             sscanf(keyValue->value, "%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x",
                    &key[0], &key[1], &key[2], &key[3], &key[4], &key[5], &key[6], &key[7], &key[8],
                    &key[9], &key[10], &key[11], &key[12], &key[13], &key[14], &key[15],
                    &key[16], &key[17], &key[18], &key[19], &key[20], &key[21], &key[22], &key[23], &key[24],
                    &key[25], &key[26], &key[27], &key[28], &key[29], &key[30], &key[31]);
-            
+
             pKey = key;
         }
-        
+
         if(ivValue) {
             sscanf(ivValue->value, "%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x",
                    &iv[0], &iv[1], &iv[2], &iv[3], &iv[4], &iv[5], &iv[6], &iv[7], &iv[8],
                    &iv[9], &iv[10], &iv[11], &iv[12], &iv[13], &iv[14], &iv[15]);
             pIV = iv;
         }
-        
+
         BoolValue *isPlainValue = (BoolValue *)getValueByKey(patchDict, "IsPlain");
         int isPlain = (isPlainValue && isPlainValue->value);
-        
+
         if(strcmp(patchDict->dValue.key, "Restore Ramdisk") == 0) {
             ramdiskFSPathInIPSW = fileValue->value;
             if(pKey) {
@@ -323,22 +282,22 @@ int main(int argc, char* argv[]) {
                 pRamdiskIV = NULL;
             }
         }
-        
+
         if(strcmp(patchDict->dValue.key, "Update Ramdisk") == 0) {
             updateRamdiskFSPathInIPSW = fileValue->value;
         }
-        
+
         patchValue = (StringValue*) getValueByKey(patchDict, "Patch2");
         if(patchValue) {
             // none?
         }
-        
+
         patchValue = (StringValue*) getValueByKey(patchDict, "Patch");
         if(patchValue) {
             XLOG(0, "%s: ", patchDict->dValue.key); fflush(stdout);
             doPatch(patchValue, fileValue, bundlePath, &outputState, pKey, pIV, useMemory, isPlain);
         }
-        
+
         BoolValue *decryptValue = (BoolValue *)getValueByKey(patchDict, "Decrypt");
         StringValue *decryptPathValue = (StringValue*) getValueByKey(patchDict, "DecryptPath");
         if ((decryptValue && decryptValue->value) || decryptPathValue) {
@@ -370,24 +329,8 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
-        
-        patchDict = (Dictionary*) patchDict->dValue.next;
-    }
 
-    ArrayValue *buildIdentities = (ArrayValue *)getValueByKey(manifest, "BuildIdentities");
-    if (buildIdentities) {
-        BuildIdentitiesPatches = (Dictionary*)getValueByKey(info, "BuildIdentitiesPatches");
-        for (i = 0; i < buildIdentities->size; i++) {
-            StringValue *path;
-            Dictionary *dict = (Dictionary *)buildIdentities->values[i];
-            BuildIdentitiesPatches = (Dictionary*)getValueByKey(info, "BuildIdentitiesPatches");
-            int myret = replaceMatching(dict,BuildIdentitiesPatches);
-            XLOG(0, "\n");
-            if (myret == -1) {
-                XLOG(0, "Error: something went wrong\n");
-                return -1;
-            }else if (myret >0) manifestDirty = TRUE;
-        }
+        patchDict = (Dictionary*) patchDict->dValue.next;
     }
 
     if (manifestDirty && manifest) {
@@ -520,14 +463,14 @@ int main(int argc, char* argv[]) {
         XLOG(0, "Growing root: %ld\n", (long) preferredRootSize); fflush(stdout);
         grow_hfs(rootVolume, rootSize);
     }
-    
+
     firmwarePatches = (Dictionary*)getValueByKey(info, "FilesystemPatches");
     patchArray = (ArrayValue*) firmwarePatches->values;
     while(patchArray != NULL) {
         for(i = 0; i < patchArray->size; i++) {
             patchDict = (Dictionary*) patchArray->values[i];
             fileValue = (StringValue*) getValueByKey(patchDict, "File");
-            
+
             actionValue = (StringValue*) getValueByKey(patchDict, "Action");
             if(strcmp(actionValue->value, "ReplaceKernel") == 0) {
                 pathValue = (StringValue*) getValueByKey(patchDict, "Path");
@@ -539,16 +482,16 @@ int main(int argc, char* argv[]) {
                 strcpy(patchPath, bundlePath);
                 strcat(patchPath, "/");
                 strcat(patchPath, patchValue->value);
-                
+
                 XLOG(0, "patching %s (%s)... ", fileValue->value, patchPath);
                 doPatchInPlace(rootVolume, fileValue->value, patchPath);
                 free(patchPath);
             }
         }
-        
+
         patchArray = (ArrayValue*) patchArray->dValue.next;
     }
-    
+
     for(; mergePaths < argc; mergePaths++) {
         XLOG(0, "merging %s\n", argv[mergePaths]);
         AbstractFile* tarFile = createAbstractFileFromFile(fopen(argv[mergePaths], "rb"));
@@ -672,7 +615,7 @@ int main(int argc, char* argv[]) {
             chmodFile("/usr/libexec/CrashHousekeeping", 0755, rootVolume);
         }
     }
-
+    
     if(needPref){
         XLOG(0, "[*] Executing needPref...\n");
         const char *prefPath = "/private/var/mobile/Library/Preferences/com.apple.springboard.plist";
@@ -684,7 +627,7 @@ int main(int argc, char* argv[]) {
         chmodFile(prefPath, 0600, rootVolume); // rw-/---/---
         chownFile(prefPath, 501, 501, rootVolume); // mobile:mobile
     }
-
+    
     if(pRamdiskKey) {
         ramdiskFS = IOFuncFromAbstractFile(openAbstractFile2(getFileFromOutputStateForOverwrite(&outputState, ramdiskFSPathInIPSW), pRamdiskKey, pRamdiskIV));
     } else {
