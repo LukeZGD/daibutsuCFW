@@ -9,7 +9,7 @@
 #include <windows.h>
 #endif
 
-char endianness;
+//char endianness;
 
 extern uint64_t MaxLoadZipSize;
 void flipAppleImg3Header(AppleImg3Header* header);

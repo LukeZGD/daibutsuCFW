@@ -13,13 +13,13 @@
 #include <errno.h>
 #include <fcntl.h>
 
-//#ifdef unix
+#ifdef unix
 # include <unistd.h>
 # include <utime.h>
-//#else
-//# include <direct.h>
-//# include <io.h>
-//#endif
+#else
+# include <direct.h>
+# include <io.h>
+#endif
 
 #include "unzip.h"
 

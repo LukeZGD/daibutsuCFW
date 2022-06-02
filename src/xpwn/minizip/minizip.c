@@ -12,15 +12,15 @@
 #include <errno.h>
 #include <fcntl.h>
 
-//#ifdef unix
+#ifdef unix
 # include <unistd.h>
 # include <utime.h>
 # include <sys/types.h>
 # include <sys/stat.h>
-//#else
-//# include <direct.h>
-//# include <io.h>
-//#endif
+#else
+# include <direct.h>
+# include <io.h>
+#endif
 
 #include "zip.h"
 

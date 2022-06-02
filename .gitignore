@@ -3,3 +3,6 @@
 *.a
 *.shsh
 *.ipsw
+bin/
+daibutsuCFW/
+new/
