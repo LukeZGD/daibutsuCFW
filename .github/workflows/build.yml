@@ -1,0 +1,36 @@
+name: Compile xpwn and idevicererestore
+on: [push]
+jobs:
+  xpwn-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run compile script
+        run: |
+          cd ./src/xpwn
+          ./compile.sh all
+          mv bin/ ../..
+          cd ../..
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: xpwn-linux
+          path: bin
+
+  idevicererestore-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run compile script
+        run: |
+          cd ./src/idevicererestore
+          ./compile.sh
+          mv idevicerestore/bin/idevicerestore_linux ../../idevicererestore_linux
+          cd ../..
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: idevicererestore-linux
+          path: idevicererestore_linux
