@@ -13,10 +13,16 @@ jobs:
           mv bin/ ../..
           cd ../..
 
-      - uses: actions/upload-artifact@v3
+      - name: Zip files
+        run: zip -r xpwn_linux.zip bin/
+
+      - name: Update latest release
+        uses: pyTooling/Actions/releaser@main
         with:
-          name: xpwn-linux
-          path: bin
+          tag: latest
+          rm: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: xpwn_linux.zip
 
   idevicererestore-linux:
     runs-on: ubuntu-20.04
@@ -30,7 +36,12 @@ jobs:
           mv idevicerestore/bin/idevicerestore_linux ../../idevicererestore_linux
           cd ../..
 
-      - uses: actions/upload-artifact@v3
+      - name: Zip files
+        run: zip -r idevicererestore_linux.zip idevicererestore_linux
+
+      - name: Update latest release
+        uses: pyTooling/Actions/releaser@main
         with:
-          name: idevicererestore-linux
-          path: idevicererestore_linux
+          tag: latest
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: idevicererestore_linux.zip
