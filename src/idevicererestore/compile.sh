@@ -16,7 +16,7 @@ else
     exit 1
 fi
 
-git clone https://github.com/LukeeGD/idevicerestore
+git clone https://github.com/LukeZGD/idevicerestore
 rm -f idevicerestore/src/*
 cp *.am *.c *.h idevicerestore/src
 cd idevicerestore

@@ -5,8 +5,6 @@ AM_CFLAGS =	                   \
 	$(libimobiledevice_CFLAGS) \
 	$(libplist_CFLAGS)         \
 	$(libzip_CFLAGS)           \
-	$(zlib_CFLAGS)             \
-        $(libusbmuxd_CFLAGS)       \
 	$(openssl_CFLAGS)          \
 	$(libcurl_CFLAGS)
 
@@ -16,29 +14,14 @@ AM_LDFLAGS =\
 	$(libimobiledevice_LIBS)   \
 	$(libplist_LIBS)           \
 	$(libzip_LIBS)             \
-	$(zlib_LIBS)               \
-        $(libusbmuxd_LIBS)         \
 	$(openssl_LIBS)            \
 	$(libcurl_LIBS)
 
 AM_LDADD = $(AC_LDADD)
 
-if NOMAIN
-noinst_LTLIBRARIES = libidevicerestore.la
-
-libidevicerestore_la_SOURCES = idevicerestore.c common.c tss.c fls.c mbn.c img3.c img4.c ipsw.c normal.c dfu.c recovery.c restore.c asr.c fdr.c download.c locking.c socket.c thread.c partial.c
-libidevicerestore_la_CFLAGS = $(AM_CFLAGS) -DIDEVICERESTORE_NOMAIN
-if WIN32
-libidevicerestore_la_CFLAGS += -DCURL_STATICLIB -DZIP_STATIC
-endif
-libidevicerestore_la_LDFLAGS = $(AM_LDFLAGS)
-libidevicerestore_la_LIBADD = $(AM_LDADD)
-
-else
 bin_PROGRAMS = idevicerestore
+
 idevicerestore_SOURCES = idevicerestore.c common.c tss.c fls.c mbn.c img3.c img4.c ipsw.c normal.c dfu.c recovery.c restore.c asr.c fdr.c download.c locking.c socket.c thread.c partial.c
 idevicerestore_CFLAGS = $(AM_CFLAGS)
 idevicerestore_LDFLAGS = $(AM_LDFLAGS)
 idevicerestore_LDADD = $(AM_LDADD)
-
-endif
