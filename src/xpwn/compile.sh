@@ -97,7 +97,7 @@ elif [[ $OSTYPE == "msys" ]]; then
     if [[ ! -e /usr/lib/libpng.a ]]; then
         echo "* Note that if your msys-runtime is outdated, MSYS2 prompt may close after updating."
         echo "* If this happens, reopen the MSYS2 prompt and run the script again"
-        pacman -Syu --noconfirm --needed cmake git libbz2-devel make msys2-devel openssl-devel zlib-devel
+        pacman -Syu --noconfirm --needed cmake git libbz2-devel make msys2-devel openssl-devel zip zlib-devel
         mkdir tmp
         cd tmp
         git clone https://github.com/glennrp/libpng
@@ -114,7 +114,17 @@ else
     exit 1
 fi
 
-[[ $platform == "win" ]] && git checkout win
+if [[ $platform == "win" ]]; then
+    if [[ -e ipsw-patch/main2.c ]]; then
+        cd ipsw-patch
+        mv main.c main0.c
+        mv main2.c main.c
+        cd ..
+    else
+        curl -LO https://github.com/LukeZGD/daibutsuCFW/raw/win/src/xpwn/ipsw-patch/main.c
+        mv -f main.c ipsw-patch/
+    fi
+fi
 
 rm -rf bin new
 mkdir bin new
@@ -131,22 +141,30 @@ if [[ $1 == "all" ]]; then
     cp ipsw-patch/ticket ../bin
     cp ipsw-patch/validate ../bin
     cp ipsw-patch/xpwntool ../bin
-    cd ..
-    rm -rf new
-    echo "Done! Builds at bin/"
-    exit 0
+    if [[ $platform != "win" ]]; then
+        cd ..
+        rm -rf new
+        echo "Done! Builds at bin/"
+        exit 0
+    fi
+else
+    cp ipsw-patch/ipsw ../bin/ipsw_$platform
 fi
 
-cp ipsw-patch/ipsw ../bin/ipsw_$platform
 cd ..
-
 if [[ $platform == "win" ]]; then
     rm -rf new/*
-    git checkout win2
-    cd new
+    cd ipsw-patch
+    mv main.c main2.c
+    if [[ -e main0.c ]]; then
+        mv main0.c main.c
+    else
+        curl -LO https://github.com/LukeZGD/daibutsuCFW/raw/win2/src/xpwn/ipsw-patch/main.c
+    fi
+    cd ../new
     $cmake ..
-    make $arg
-    cp ipsw-patch/ipsw ../bin/ipsw_${platform}2
+    make ipsw
+    cp ipsw-patch/ipsw ../bin/ipsw_win2
     cd ..
 fi
 
