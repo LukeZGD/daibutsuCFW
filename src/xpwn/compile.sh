@@ -114,17 +114,16 @@ else
     exit 1
 fi
 
+cd ipsw-patch
 if [[ $platform == "win" ]]; then
-    if [[ -e ipsw-patch/main2.c ]]; then
-        cd ipsw-patch
-        mv main.c main0.c
+    mv main.c main3.c
+    if [[ -e main2.c ]]; then
         mv main2.c main.c
-        cd ..
     else
         curl -LO https://github.com/LukeZGD/daibutsuCFW/raw/win/src/xpwn/ipsw-patch/main.c
-        mv -f main.c ipsw-patch/
     fi
 fi
+cd ..
 
 rm -rf bin new
 mkdir bin new
@@ -165,6 +164,15 @@ if [[ $platform == "win" ]]; then
     $cmake ..
     make ipsw
     cp ipsw-patch/ipsw ../bin/ipsw_win2
+    cd ..
+    rm -rf new/*
+    cd ipsw-patch
+    mv main.c main0.c
+    mv main3.c main.c
+    cd ../new
+    $cmake ..
+    make ipsw
+    cp ipsw-patch/ipsw ../bin/ipsw_win3
     cd ..
 fi
 
