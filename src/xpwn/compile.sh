@@ -122,9 +122,10 @@ prepare() {
 build() {
     if [[ $platform == "win" ]]; then
         cd ipsw-patch
-        if [[ -e main2.c ]]; then
-            mv main2.c main.c
+        if [[ -e mainw.c ]]; then
+            mv mainw.c main.c
         else
+            mv main.c main2.c
             curl -LO https://github.com/LukeZGD/daibutsuCFW/raw/win/src/xpwn/ipsw-patch/main.c
         fi
         cd ..
@@ -159,18 +160,14 @@ build() {
     if [[ $platform == "win" ]]; then
         rm -rf new/*
         cd ipsw-patch
-        mv main.c main2.c
-        if [[ -e main0.c ]]; then
-            mv main0.c main.c
-        else
-            curl -LO https://github.com/LukeZGD/daibutsuCFW/raw/win2/src/xpwn/ipsw-patch/main.c
-        fi
+        mv main.c mainw.c
+        mv main2.c main.c
         cd ../new
         $cmake ..
         make ipsw
         cp ipsw-patch/ipsw ../bin/ipsw_win2
         cd ..
-        mv ipsw-patch/main.c ipsw-patch/main0.c
+        mv ipsw-patch/main.c ipsw-patch/main2.c
     fi
 
     rm -rf new
