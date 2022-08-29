@@ -295,12 +295,15 @@ cryptoMagic(X509 *x0, X509 *x1, X509 *x2,
 			if (rsa) {
 				X509_STORE *store = X509_STORE_new();
 				if (store) {
-					X509_STORE_CTX *ctx = X509_STORE_CTX_new();
+					X509_STORE_CTX* ctx = X509_STORE_CTX_new();
 					X509_STORE_add_cert(store, x0);
 					X509_STORE_add_cert(store, x1);
-					if (X509_STORE_CTX_init(&ctx, store, x2, 0) == 1) {
-						X509_STORE_CTX_set_flags(&ctx, X509_V_FLAG_IGNORE_CRITICAL);
-						if (X509_verify_cert(&ctx) == 1) {
+					if (X509_STORE_CTX_init(ctx, store, x2, 0) == 1) {
+						X509_STORE_CTX_set_flags(ctx, X509_V_FLAG_IGNORE_CRITICAL);
+						time_t oldTime = (long)0x52c2dbf0; // 2014/01/01
+						X509_STORE_CTX_set_time(ctx, 0, oldTime);
+						int verifyRes = X509_verify_cert(ctx);
+						if (verifyRes == 1) {
 							unsigned char md[SHA_DIGEST_LENGTH];
 							if (partialDigest) {
 								// XXX we need to flip ECID back before hashing
@@ -311,7 +314,7 @@ cryptoMagic(X509 *x0, X509 *x1, X509 *x2,
 							}
 							rv = RSA_verify(NID_sha1, md, SHA_DIGEST_LENGTH, rsaSigData, rsaSigLen, rsa);
 						}
-						X509_STORE_CTX_cleanup(&ctx);
+						X509_STORE_CTX_cleanup(ctx);
 					}
 					X509_STORE_free(store);
 				}
