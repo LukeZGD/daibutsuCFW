@@ -1,0 +1,6 @@
+399,400c399,400
+<     int hasCydia;
+<     int hasUntether;
+---
+>     int hasCydia = 0;
+>     int hasUntether = 0;

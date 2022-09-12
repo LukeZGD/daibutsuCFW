@@ -2,6 +2,7 @@
 
 arg="ipsw"
 cmake=/usr/bin/cmake
+export JNUM="-j$(nproc)"
 
 for i in "$@"; do
     if [[ $i == "help" ]]; then
@@ -67,25 +68,25 @@ prepare() {
             cd tmp
             git clone https://github.com/madler/zlib
             aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-            aria2c https://www.openssl.org/source/openssl-1.1.1o.tar.gz
+            aria2c https://www.openssl.org/source/openssl-1.1.1q.tar.gz
 
             tar -zxvf bzip2-1.0.8.tar.gz
             cd bzip2-1.0.8
-            make LDFLAGS="$BEGIN_LDFLAGS"
+            make $JNUM LDFLAGS="$BEGIN_LDFLAGS"
             sudo make install
             cd ..
 
             cd zlib
             ./configure --static
-            make LDFLAGS="$BEGIN_LDFLAGS"
+            make $JNUM LDFLAGS="$BEGIN_LDFLAGS"
             sudo make install
             cd ..
 
-            tar -zxvf openssl-1.1.1o.tar.gz
-            cd openssl-1.1.1o
+            tar -zxvf openssl-1.1.1q.tar.gz
+            cd openssl-1.1.1q
             ./Configure no-ssl3-method enable-ec_nistp_64_gcc_128 linux-x86_64 "-Wa,--noexecstack -fPIC"
-            make depend
-            make
+            make $JNUM depend
+            make $JNUM
             sudo make install_sw install_ssldirs
             sudo rm -rf /usr/local/lib/libcrypto.so* /usr/local/lib/libssl.so*
             cd ..
@@ -107,7 +108,7 @@ prepare() {
             git clone https://github.com/glennrp/libpng
             cd libpng
             ./configure
-            make
+            make $JNUM
             make install
             cd ../..
             rm -rf tmp
@@ -122,12 +123,7 @@ prepare() {
 build() {
     if [[ $platform == "win" ]]; then
         cd ipsw-patch
-        if [[ -e mainw.c ]]; then
-            mv mainw.c main.c
-        else
-            mv main.c main2.c
-            curl -LO https://github.com/LukeZGD/daibutsuCFW/raw/win/src/xpwn/ipsw-patch/main.c
-        fi
+        patch main.c < main.patch
         cd ..
     fi
 
@@ -135,7 +131,7 @@ build() {
     mkdir bin new
     cd new
     $cmake ..
-    make $arg
+    make $JNUM $arg
 
     if [[ $1 == "all" ]]; then
         cp dmg/dmg ../bin
@@ -160,14 +156,11 @@ build() {
     if [[ $platform == "win" ]]; then
         rm -rf new/*
         cd ipsw-patch
-        mv main.c mainw.c
-        mv main2.c main.c
+        patch -R main.c < main.patch
         cd ../new
         $cmake ..
-        make ipsw
-        cp ipsw-patch/ipsw ../bin/ipsw_win2
+        make $JNUM ipsw
         cd ..
-        mv ipsw-patch/main.c ipsw-patch/main2.c
     fi
 
     rm -rf new

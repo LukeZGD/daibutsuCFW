@@ -10,6 +10,8 @@ elif [[ $OSTYPE == "msys" ]]; then
     platform="win"
     echo "* Platform: Windows MSYS2"
     pacman -Syu --needed --noconfirm git
+    patch idevicerestore.c < idevicerestore.patch
+    patch restore.c < restore.patch
 
 else
     echo "[Error] Unsupported platform for compile script"
