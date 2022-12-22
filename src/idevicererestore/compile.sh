@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 if [[ $OSTYPE == "linux"* ]]; then
     platform="linux"
@@ -9,7 +10,7 @@ if [[ $OSTYPE == "linux"* ]]; then
 elif [[ $OSTYPE == "msys" ]]; then
     platform="win"
     echo "* Platform: Windows MSYS2"
-    pacman -Syu --needed --noconfirm git
+    pacman -Syu --needed --noconfirm git patch
     patch idevicerestore.c < idevicerestore.patch
     patch restore.c < restore.patch
 

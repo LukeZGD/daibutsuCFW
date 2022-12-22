@@ -1,4 +1,4 @@
-1956,2208d1955
+1956,2214d1955
 < 
 < 
 < 
@@ -252,13 +252,13 @@
 <                 partialzip_download_file(fwurl, bbfwpath, client->basebandPath);
 <             }
 <         }
-2210,2225d1956
+<     }
 <     
 <     FILE *bb = fopen(client->basebandPath, "r");
 <     
 <     if (!bb) {
 <         partialzip_download_file(fwurl, bbfwpath, client->basebandPath);
-<     }
+2216,2225d1956
 <     
 < #if 0
 < 	if (!(client->flags & FLAG_RERESTORE)) {
@@ -269,3 +269,13 @@
 < 		}
 < 	}
 < #endif
+2878,2886d2608
+<             
+<             if (client->basebandPath) {
+<                 FILE *bbfw = fopen(client->basebandPath, "r");
+<                 
+<                 if (bbfw) {
+<                     fclose(bbfw);
+<                     remove(client->basebandPath);
+<                 }
+<             }
