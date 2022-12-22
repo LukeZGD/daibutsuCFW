@@ -102,7 +102,7 @@ prepare() {
         if [[ ! -e /usr/lib/libpng.a ]]; then
             echo "* Note that if your msys-runtime is outdated, MSYS2 prompt may close after updating."
             echo "* If this happens, reopen the MSYS2 prompt and run the script again"
-            pacman -Syu --noconfirm --needed cmake git libbz2-devel make msys2-devel openssl-devel zip zlib-devel
+            pacman -Syu --noconfirm --needed cmake git libbz2-devel make msys2-devel openssl-devel patch zip zlib-devel
             mkdir tmp
             cd tmp
             git clone https://github.com/glennrp/libpng
