@@ -84,7 +84,13 @@ prepare() {
 
             tar -zxvf openssl-1.1.1q.tar.gz
             cd openssl-1.1.1q
-            ./Configure no-ssl3-method enable-ec_nistp_64_gcc_128 linux-x86_64 "-Wa,--noexecstack -fPIC"
+            if [[ $(uname -m) == "a"* && $(getconf LONG_BIT) == 64 ]]; then
+                ./Configure no-ssl3-method linux-aarch64 "-Wa,--noexecstack -fPIC"
+            elif [[ $(uname -m) == "a"* ]]; then
+                ./Configure no-ssl3-method linux-generic32 "-Wa,--noexecstack -fPIC"
+            else
+                ./Configure no-ssl3-method enable-ec_nistp_64_gcc_128 linux-x86_64 "-Wa,--noexecstack -fPIC"
+            fi
             make $JNUM depend
             make $JNUM
             sudo make install_sw install_ssldirs
