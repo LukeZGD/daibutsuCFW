@@ -47,6 +47,7 @@ prepare() {
         fi
 
     elif [[ $OSTYPE == "linux"* ]]; then
+        sslver="1.1.1s"
         platform="linux"
         echo "* Platform: Linux"
         . /etc/os-release
@@ -68,7 +69,7 @@ prepare() {
             cd tmp
             git clone https://github.com/madler/zlib
             aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-            aria2c https://www.openssl.org/source/openssl-1.1.1q.tar.gz
+            aria2c https://www.openssl.org/source/openssl-$sslver.tar.gz
 
             tar -zxvf bzip2-1.0.8.tar.gz
             cd bzip2-1.0.8
@@ -82,8 +83,8 @@ prepare() {
             sudo make install
             cd ..
 
-            tar -zxvf openssl-1.1.1q.tar.gz
-            cd openssl-1.1.1q
+            tar -zxvf openssl-$sslver.tar.gz
+            cd openssl-$sslver
             if [[ $(uname -m) == "a"* && $(getconf LONG_BIT) == 64 ]]; then
                 ./Configure no-ssl3-method linux-aarch64 "-Wa,--noexecstack -fPIC"
             elif [[ $(uname -m) == "a"* ]]; then
@@ -166,6 +167,7 @@ build() {
         cd ../new
         $cmake ..
         make $JNUM ipsw
+        cp ipsw-patch/ipsw ../bin/ipsw2
         cd ..
     fi
 

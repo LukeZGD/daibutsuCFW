@@ -23,5 +23,5 @@ git clone https://github.com/LukeZGD/idevicerestore
 rm -f idevicerestore/src/*
 cp *.am *.c *.h idevicerestore/src
 cd idevicerestore
-./compile.sh
+./compile.sh ssl3
 exit $?
