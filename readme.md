@@ -1,7 +1,8 @@
 # daibutsuCFW  
 
 - daibutsuCFW fork used for [iOS-OTA-Downgrader](https://github.com/LukeZGD/iOS-OTA-Downgrader)
-- idevicererestore and xpwn builds for Linux can be [downloaded here](https://github.com/LukeZGD/daibutsuCFW/releases/tag/latest)
+- idevicererestore and xpwn builds for Linux and Windows can be [downloaded here](https://github.com/LukeZGD/daibutsuCFW/releases/tag/latest)
+- For idevicererestore, the patch version is used for iOS-OTA-Downgrader - It uses `tmp/tmp.bbfw` and `tmp/BuildManifest.plist` for the baseband to be used
 
 ### list of flags and devices supported by haxx_overwrite (dyld haxx)
 | flag | device | 

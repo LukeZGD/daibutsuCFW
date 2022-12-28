@@ -20,7 +20,6 @@ jobs:
         uses: pyTooling/Actions/releaser@main
         with:
           tag: latest
-          rm: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: xpwn_linux.zip
 
@@ -57,12 +56,12 @@ jobs:
       - name: Run compile script
         run: |
           cd ./src/idevicererestore
-          ./compile.sh
-          mv idevicerestore/bin/idevicerestore_linux ../../idevicererestore_linux
+          ./compile.sh patch
+          mv idevicerestore/bin ../..
           cd ../..
 
       - name: Zip files
-        run: zip -r idevicererestore_linux.zip idevicererestore_linux
+        run: zip -r idevicererestore_linux.zip bin/
 
       - name: Update latest release
         uses: pyTooling/Actions/releaser@main
@@ -87,10 +86,11 @@ jobs:
       - name: Run compile script
         run: |
           cd ./src/idevicererestore
-          ./compile.sh
+          ./compile.sh patch
+          mv idevicerestore/bin ../..
           cd ../..
-          cp /mingw64/bin/idevicerestore idevicererestore_win
+
       - uses: actions/upload-artifact@v3
         with:
           name: idevicererestore_win
-          path: idevicererestore_win.exe
+          path: bin/
