@@ -62,7 +62,9 @@ prepare() {
 
         if [[ ! -e /usr/local/lib/libbz2.a || ! -e /usr/local/lib/libz.a ||
             ! -e /usr/local/lib/libcrypto.a || ! -e /usr/local/lib/libssl.a ]]; then
+        #if [[ ! -e /usr/local/lib/libbz2.a || ! -e /usr/local/lib/libz.a ]]; then
             sudo apt update
+            sudo apt remove -y libssl-dev
             sudo apt install -y pkg-config libtool automake g++ cmake git libusb-1.0-0-dev libreadline-dev libpng-dev git autopoint aria2 ca-certificates
 
             mkdir tmp
@@ -83,6 +85,7 @@ prepare() {
             sudo make install
             cd ..
 
+            #: '
             tar -zxvf openssl-$sslver.tar.gz
             cd openssl-$sslver
             if [[ $(uname -m) == "a"* && $(getconf LONG_BIT) == 64 ]]; then
@@ -97,6 +100,7 @@ prepare() {
             sudo make install_sw install_ssldirs
             sudo rm -rf /usr/local/lib/libcrypto.so* /usr/local/lib/libssl.so*
             cd ..
+            #'
 
             cd ..
             rm -rf tmp
@@ -141,6 +145,7 @@ build() {
     make $JNUM $arg
 
     if [[ $1 == "all" ]]; then
+        cp common/libcommon.a ../bin
         cp dmg/dmg ../bin
         cp hdutil/hdutil ../bin
         cp hfs/hfsplus ../bin
@@ -149,6 +154,7 @@ build() {
         cp ipsw-patch/ticket ../bin
         cp ipsw-patch/validate ../bin
         cp ipsw-patch/xpwntool ../bin
+        cp ipsw-patch/libxpwn.a ../bin
         if [[ $platform != "win" ]]; then
             cd ..
             rm -rf new

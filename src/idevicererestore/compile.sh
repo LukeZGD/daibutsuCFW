@@ -41,7 +41,7 @@ git clone https://github.com/LukeZGD/idevicerestore
 rm -f idevicerestore/src/*
 cp *.am *.c *.h *.patch idevicerestore/src
 cd idevicerestore
-./compile.sh ssl3
+./compile.sh
 mv bin/idevicerestore_$platform bin/idevicererestore_$platform
 
 if [[ $1 == "patch" ]]; then
