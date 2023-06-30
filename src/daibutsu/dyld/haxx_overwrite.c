@@ -135,6 +135,78 @@ void offset_init(int ver){
         MOV_R0_0__BX_LR = 0x3022f516;
         return;
     }
+
+    if(ver == 11){
+        // iPad2,1
+        exportTableOffset = 0x13a3ab59;
+        MISValidateSignature = 0x30050ca0;
+        MOV_R0_0__BX_LR = 0x3004f506;
+        return;
+    }
+
+    if(ver == 12){
+        // iPad2,2
+        exportTableOffset = 0x13b8ed7d;
+        MISValidateSignature = 0x3018dca0;
+        MOV_R0_0__BX_LR = 0x3018c506;
+        return;
+    }
+
+    if(ver == 13){
+        // iPad2,3
+        exportTableOffset = 0x13b8ed7d;
+        MISValidateSignature = 0x3018dca0;
+        MOV_R0_0__BX_LR = 0x3018c506;
+        return;
+    }
+
+    if(ver == 14){
+        // iPad3,4
+        exportTableOffset = 0x13a08b7d;
+        MISValidateSignature = 0x30093cc8;
+        MOV_R0_0__BX_LR = 0x3009252e;
+        return;
+    }
+
+    if(ver == 15){
+        // iPad3,5
+        exportTableOffset = 0x13b5cda1;
+        MISValidateSignature = 0x301d0cc8;
+        MOV_R0_0__BX_LR = 0x301cf52e;
+        return;
+    }
+
+    if(ver == 16){
+        // iPad3,6
+        exportTableOffset = 0x13b5cda1;
+        MISValidateSignature = 0x301d0cc8;
+        MOV_R0_0__BX_LR = 0x301cf52e;
+        return;
+    }
+
+    if(ver == 17){
+        // iPhone5,1
+        exportTableOffset = 0x13a3092d;
+        MISValidateSignature = 0x30082cc8;
+        MOV_R0_0__BX_LR = 0x3008152e;
+        return;
+    }
+
+    if(ver == 18){
+        // iPhone5,3
+        exportTableOffset = 0x13ce59b9;
+        MISValidateSignature = 0x30320cc8;
+        MOV_R0_0__BX_LR = 0x3031f52e;
+        return;
+    }
+
+    if(ver == 19){
+        // iPhone5,4
+        exportTableOffset = 0x13ce59b9;
+        MISValidateSignature = 0x30320cc8;
+        MOV_R0_0__BX_LR = 0x3031f52e;
+        return;
+    }
     
 }
 
@@ -757,6 +829,33 @@ int main(int argc, char **argv){
     } else if(!strcmp(argv[1], "-j2a")) {
         rv=10;
         isA6=0;
+    } else if(!strcmp(argv[1], "-k93")) {
+        rv=11;
+        isA6=0;
+    } else if(!strcmp(argv[1], "-k94")) {
+        rv=12;
+        isA6=0;
+    } else if(!strcmp(argv[1], "-k95")) {
+        rv=13;
+        isA6=0;
+    } else if(!strcmp(argv[1], "-p101")) {
+        rv=14;
+        isA6=1;
+    } else if(!strcmp(argv[1], "-p102")) {
+        rv=15;
+        isA6=1;
+    } else if(!strcmp(argv[1], "-p103")) {
+        rv=16;
+        isA6=1;
+    } else if(!strcmp(argv[1], "-n41")) {
+        rv=17;
+        isA6=1;
+    } else if(!strcmp(argv[1], "-n48")) {
+        rv=18;
+        isA6=1;
+    } else if(!strcmp(argv[1], "-n49")) {
+        rv=19;
+        isA6=1;
     } else {
         printf("[-] ERROR: This device is not supported!\n");
         reboot(0);
