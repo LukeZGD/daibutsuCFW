@@ -1,0 +1,13 @@
+4c4
+< #include "util.h"
+---
+> #include <stdint.h>
+61c61
+<         printf("mvsdataaddressoffset: %llx\n", res);
+---
+>         //printf("mvsdataaddressoffset: %llx\n", res);
+79c79
+< }
+\ No newline at end of file
+---
+> }

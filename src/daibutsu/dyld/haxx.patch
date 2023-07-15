@@ -1,0 +1,269 @@
+8a9,10
+> #define _GNU_SOURCE
+> 
+159c161
+< 
+---
+>     /*
+167a170
+>     */
+172c175
+<     printf("\n");
+---
+>     //printf("\n");
+176a180
+>         /*
+182a187
+>         */
+184c189
+<         printf("\n");
+---
+>         //printf("\n");
+226c231
+<     printf("\n");
+---
+>     //printf("\n");
+228,230c233,235
+<     printf("path name  : %s\n", libmis);
+<     printf("libmisOffset : %08llx\n", libmisoffset);
+<     printf("pathCount  : %d\n", pathCount);
+---
+>     //printf("path name  : %s\n", libmis);
+>     //printf("libmisOffset : %08llx\n", libmisoffset);
+>     //printf("pathCount  : %d\n", pathCount);
+246c251
+<     printf("LIBMIS HEADER: %16llx\n", mapInfo->address + libmisheaderloc);
+---
+>     //printf("LIBMIS HEADER: %16llx\n", mapInfo->address + libmisheaderloc);
+279,280c284,285
+<             printf("LIBMIS EXPORT TABLE %08x\n", dyc->export_off);
+<             printf("LIBMIS EXPORT TABLE SIZE %08x\n", dyc->export_size);
+---
+>             //printf("LIBMIS EXPORT TABLE %08x\n", dyc->export_off);
+>             //printf("LIBMIS EXPORT TABLE SIZE %08x\n", dyc->export_size);
+286c291
+<     printf("MISVALIDATESIGNATURE %08llx\n", MISValidateSignature);
+---
+>     printf("    MISValidateSignature = 0x%08llx;\n", MISValidateSignature);
+314c319
+<     printf("MOV X0, #0 RET GADGET %08llx\n", MOV_R0_0__BX_LR);
+---
+>     printf("    MOV_R0_0__BX_LR = 0x%08llx;\n", MOV_R0_0__BX_LR);
+322c327
+<     printf("da real offset %x\n", mvsdataaddressoffset);
+---
+>     //printf("da real offset %x\n", mvsdataaddressoffset);
+324,325c329,330
+<     printf("exportTableOffset %08llx\n", exportTableOffset);
+< 
+---
+>     printf("    exportTableOffset = 0x%08llx;\n", exportTableOffset);
+>     return 0;
+327c332
+<     printf("NEW VALUE :");
+---
+>     //printf("NEW VALUE :");
+332c337
+<         printf("%02x", *(newval + i));
+---
+>         printf("\n");
+348a354
+>     /*
+353a360
+>     */
+367c374
+<     printf("[memcpy] header [sz: %016llx] : %016llx -> %016llx\n", headerSize, (uint64_t)0, newHeaderOffset);
+---
+>     //printf("[memcpy] header [sz: %016llx] : %016llx -> %016llx\n", headerSize, (uint64_t)0, newHeaderOffset);
+373c380
+<     printf("[memcpy] data   [sz: %016llx] : %016llx -> %016llx\n", dataSize, dataOffset, newDataOffset);
+---
+>     //printf("[memcpy] data   [sz: %016llx] : %016llx -> %016llx\n", dataSize, dataOffset, newDataOffset);
+381c388
+<     printf("[RemapHeader1] newCount: %08x -> %08x\n", header->mappingCount, newCount);
+---
+>     //printf("[RemapHeader1] newCount: %08x -> %08x\n", header->mappingCount, newCount);
+383c390
+<     printf("\n");
+---
+>     //printf("\n");
+387c394
+<     printf("[RemapHeader2] newImgOffset: %08x -> %08x\n", header->imagesOffset, newImgOffset);
+---
+>     //printf("[RemapHeader2] newImgOffset: %08x -> %08x\n", header->imagesOffset, newImgOffset);
+389c396
+<     printf("\n");
+---
+>     //printf("\n");
+406c413
+<         printf("[RemapHeader3] dyld_cache_mapping_info [%i]\n", i);
+---
+>         //printf("[RemapHeader3] dyld_cache_mapping_info [%i]\n", i);
+414c421
+<             printf("address    : %016llx\n", mapInfo->address);
+---
+>             //printf("address    : %016llx\n", mapInfo->address);
+416c423
+<             printf("size       : %016llx -> %016llx\n", mapInfo->size, headerSize);
+---
+>             //printf("size       : %016llx -> %016llx\n", mapInfo->size, headerSize);
+419c426
+<             printf("fileOffset : %016llx -> %016llx\n", mapInfo->fileOffset, newHeaderOffset);
+---
+>             //printf("fileOffset : %016llx -> %016llx\n", mapInfo->fileOffset, newHeaderOffset);
+422c429
+<             printf("maxProt    : %08x -> %08x\n", mapInfo->maxProt, (F_R));
+---
+>             //printf("maxProt    : %08x -> %08x\n", mapInfo->maxProt, (F_R));
+425c432
+<             printf("initProt   : %08x -> %08x\n", mapInfo->initProt, (F_R));
+---
+>             //printf("initProt   : %08x -> %08x\n", mapInfo->initProt, (F_R));
+431c438
+<             printf("address    : %016llx -> %016llx\n", mapInfo->address, nextBase);
+---
+>             //printf("address    : %016llx -> %016llx\n", mapInfo->address, nextBase);
+434c441
+<             printf("size       : %016llx -> %016llx\n", mapInfo->size, nextSize);
+---
+>             //printf("size       : %016llx -> %016llx\n", mapInfo->size, nextSize);
+437c444
+<             printf("fileOffset : %016llx -> %016llx\n", mapInfo->fileOffset, nextOffset);
+---
+>             //printf("fileOffset : %016llx -> %016llx\n", mapInfo->fileOffset, nextOffset);
+440c447
+<             printf("maxProt    : %08x -> %08x\n", mapInfo->maxProt, (mapInfo - 1)->maxProt);
+---
+>             //printf("maxProt    : %08x -> %08x\n", mapInfo->maxProt, (mapInfo - 1)->maxProt);
+443c450
+<             printf("initProt   : %08x -> %08x\n", mapInfo->initProt, (mapInfo - 1)->maxProt);
+---
+>             //printf("initProt   : %08x -> %08x\n", mapInfo->initProt, (mapInfo - 1)->maxProt);
+449c456
+<             printf("address    : %016llx -> %016llx\n", mapInfo->address, (mapInfo - 1)->address);
+---
+>             //printf("address    : %016llx -> %016llx\n", mapInfo->address, (mapInfo - 1)->address);
+452c459
+<             printf("size       : %016llx -> %016llx\n", mapInfo->size, (mapInfo - 1)->size);
+---
+>             //printf("size       : %016llx -> %016llx\n", mapInfo->size, (mapInfo - 1)->size);
+455c462
+<             printf("fileOffset : %016llx -> %016llx\n", mapInfo->fileOffset, (mapInfo - 1)->fileOffset);
+---
+>             //printf("fileOffset : %016llx -> %016llx\n", mapInfo->fileOffset, (mapInfo - 1)->fileOffset);
+458c465
+<             printf("maxProt    : %08x -> %08x\n", mapInfo->maxProt, (mapInfo - 1)->maxProt);
+---
+>             //printf("maxProt    : %08x -> %08x\n", mapInfo->maxProt, (mapInfo - 1)->maxProt);
+461c468
+<             printf("initProt   : %08x -> %08x\n", mapInfo->initProt, (mapInfo - 1)->maxProt);
+---
+>             //printf("initProt   : %08x -> %08x\n", mapInfo->initProt, (mapInfo - 1)->maxProt);
+469c476
+<             printf("address    : %016llx\n", (mapInfo - 1)->address);
+---
+>             //printf("address    : %016llx\n", (mapInfo - 1)->address);
+472c479
+<             printf("size       : %016llx\n", dataOffset - (mapInfo - 1)->fileOffset);
+---
+>             //printf("size       : %016llx\n", dataOffset - (mapInfo - 1)->fileOffset);
+476c483
+<             printf("fileOffset : %016llx\n", (mapInfo - 1)->fileOffset);
+---
+>             //printf("fileOffset : %016llx\n", (mapInfo - 1)->fileOffset);
+479c486
+<             printf("maxProt    : %08x\n", (mapInfo - 1)->maxProt);
+---
+>             //printf("maxProt    : %08x\n", (mapInfo - 1)->maxProt);
+482c489
+<             printf("initProt   : %08x\n", (mapInfo - 1)->maxProt);
+---
+>             //printf("initProt   : %08x\n", (mapInfo - 1)->maxProt);
+489c496
+<             printf("address    : %016llx\n", nextBase);
+---
+>             //printf("address    : %016llx\n", nextBase);
+494c501
+<             printf("size       : %016llx\n", dataSize);
+---
+>             //printf("size       : %016llx\n", dataSize);
+497c504
+<             printf("fileOffset : %016llx\n", newDataOffset);
+---
+>             //printf("fileOffset : %016llx\n", newDataOffset);
+500c507
+<             printf("maxProt    : %08x\n", (F_R));
+---
+>             //printf("maxProt    : %08x\n", (F_R));
+503c510
+<             printf("initProt   : %08x\n", (F_R));
+---
+>             //printf("initProt   : %08x\n", (F_R));
+509c516
+<             printf("address    : %016llx\n", nextBase);
+---
+>             //printf("address    : %016llx\n", nextBase);
+512c519
+<             printf("size       : %016llx\n", (mapInfo - 3)->size - dataSize - nextSize);
+---
+>             //printf("size       : %016llx\n", (mapInfo - 3)->size - dataSize - nextSize);
+515c522
+<             printf("fileOffset : %016llx\n", (mapInfo - 3)->fileOffset + dataSize + nextSize);
+---
+>             //printf("fileOffset : %016llx\n", (mapInfo - 3)->fileOffset + dataSize + nextSize);
+518c525
+<             printf("maxProt    : %08x\n", (F_R));
+---
+>             //printf("maxProt    : %08x\n", (F_R));
+521c528
+<             printf("initProt   : %08x\n", (F_R));
+---
+>             //printf("initProt   : %08x\n", (F_R));
+532c539
+<     printf("[RemapHeader4] moving dyld_cache_image_info[%016llx] %08x -> %08x\n", headerSize - newImgOffset, header->imagesOffset, newImgOffset);
+---
+>     //printf("[RemapHeader4] moving dyld_cache_image_info[%016llx] %08x -> %08x\n", headerSize - newImgOffset, header->imagesOffset, newImgOffset);
+538c545
+<     printf("dyld_cache_image_info Point: %016lx\n", header->imagesOffset + (pathCount * sizeof(struct dyld_cache_image_info)));
+---
+>     //printf("dyld_cache_image_info Point: %016lx\n", header->imagesOffset + (pathCount * sizeof(struct dyld_cache_image_info)));
+541,544c548,551
+<         printf("[RemapHeader5] imageInfo->pathFileOffset [%d]: %08x -> %08x\n",
+<                i,
+<                (imageInfo + i)->pathFileOffset,
+<                (imageInfo + i)->pathFileOffset + addSize);
+---
+>         //printf("[RemapHeader5] imageInfo->pathFileOffset [%d]: %08x -> %08x\n",
+>         //       i,
+>         //       (imageInfo + i)->pathFileOffset,
+>         //       (imageInfo + i)->pathFileOffset + addSize);
+548c555
+<     printf("\n");
+---
+>     //printf("\n");
+552,553c559,560
+<     printf("cs_length: %08x\n", cs_length);
+<     printf("codeSignatureSize: %016llx -> %016llx\n", header->codeSignatureSize, (uint64_t)cs_length);
+---
+>     //printf("cs_length: %08x\n", cs_length);
+>     //printf("codeSignatureSize: %016llx -> %016llx\n", header->codeSignatureSize, (uint64_t)cs_length);
+559c566
+<     printf("origTable: %04x\n", origTable);
+---
+>     //printf("origTable: %04x\n", origTable);
+562,563c569,570
+<     printf("original_point : %016llx\n", exportTableOffset);
+<     printf("patch_point    : %016llx\n", patch_point);
+---
+>     //printf("original_point : %016llx\n", exportTableOffset);
+>     //printf("patch_point    : %016llx\n", patch_point);
+567,568c574,575
+<     printf("newTable: %02x%02x", newval[0], newval[1]);
+<     printf("\n");
+---
+>     //printf("newTable: %02x%02x", newval[0], newval[1]);
+>     //printf("\n");
+571c578
+<     printf("write: %s\n", outfile);
+---
+>     //printf("write: %s\n", outfile);
