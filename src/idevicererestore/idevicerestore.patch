@@ -548,11 +548,11 @@
 <                 client->basebandPath = "bbfw.tmp";
 ---
 >                 client->basebandPath = "tmp/bbfw.tmp";
-2620c2088
+2614c2082
 <                 sprintf(zfn, "%s/shsh/" FMT_qu "-%s-%s-%s.shsh", client->cache_dir, (long long int)client->ecid, client->device->product_type, client->version, client->build);
 ---
 >                 sprintf(zfn, "%s/shsh/" FMT_qu "-%s-%s.shsh", client->cache_dir, (long long int)client->ecid, client->device->product_type, client->version);
-2622c2090
+2616c2084
 <                 sprintf(zfn, "shsh/" FMT_qu "-%s-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version, client->build);
 ---
 >                 sprintf(zfn, "shsh/" FMT_qu "-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version);

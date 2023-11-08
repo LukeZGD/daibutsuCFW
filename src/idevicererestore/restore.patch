@@ -1,4 +1,4 @@
-1956,2214d1955
+1950,2208d1949
 < 
 < 
 < 
@@ -258,7 +258,7 @@
 <     
 <     if (!bb) {
 <         partialzip_download_file(fwurl, bbfwpath, client->basebandPath);
-2216,2225d1956
+2210,2219d1950
 <     
 < #if 0
 < 	if (!(client->flags & FLAG_RERESTORE)) {
@@ -269,7 +269,7 @@
 < 		}
 < 	}
 < #endif
-2878,2886d2608
+2872,2880d2602
 <             
 <             if (client->basebandPath) {
 <                 FILE *bbfw = fopen(client->basebandPath, "r");

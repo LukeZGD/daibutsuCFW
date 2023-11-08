@@ -120,6 +120,7 @@ int main(int argc, char* argv[]) {
     
     char needPref = FALSE;
     char usedaibutsu = FALSE;
+    char usepunchd = FALSE;
     
     unsigned int key[32];
     unsigned int iv[16];
@@ -128,7 +129,7 @@ int main(int argc, char* argv[]) {
     unsigned int* pIV = NULL;
     
     if(argc < 3) {
-        XLOG(0, "usage %s <input.ipsw> <target.ipsw> [-daibutsu] [-s <system partition size>] [-S <system partition add>] [-memory] [-bbupdate] [-ota BuildManifest] [-e \"<action to exclude>\"] [-ramdiskgrow <blocks>]\n", argv[0]);
+        XLOG(0, "usage %s <input.ipsw> <target.ipsw> [-daibutsu] [-punchd] [-s <system partition size>] [-S <system partition add>] [-memory] [-bbupdate] [-ota BuildManifest] [-e \"<action to exclude>\"] [-ramdiskgrow <blocks>]\n", argv[0]);
         return 0;
     }
     
@@ -149,6 +150,11 @@ int main(int argc, char* argv[]) {
         
         if(strcmp(argv[i], "-daibutsu") == 0) {
             usedaibutsu = TRUE;
+            continue;
+        }
+
+        if(strcmp(argv[i], "-punchd") == 0) {
+            usepunchd = TRUE;
             continue;
         }
         
@@ -490,6 +496,13 @@ int main(int argc, char* argv[]) {
         }
 
         patchArray = (ArrayValue*) patchArray->dValue.next;
+    }
+
+    if(usepunchd) {
+        const char *movelaunchd = "/sbin/launchd";
+        const char *movedpunchd = "/sbin/punchd";
+        XLOG(0, "[+] Moving %s -> %s\n", movelaunchd, movedpunchd);
+        move(movelaunchd, movedpunchd, rootVolume);
     }
 
     for(; mergePaths < argc; mergePaths++) {
