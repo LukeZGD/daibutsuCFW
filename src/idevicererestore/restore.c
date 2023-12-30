@@ -438,7 +438,8 @@ static void restore_device_event_cb(const idevice_event_t *event, void *user_dat
 	}
 }
 
-int restore_open_with_timeout(struct idevicerestore_client_t* client) {
+int restore_open_with_timeout(struct idevicerestore_client_t* client)
+{
 	int i = 0;
 	int attempts = 180;
 	char *type = NULL;
@@ -449,17 +450,17 @@ int restore_open_with_timeout(struct idevicerestore_client_t* client) {
 	restored_error_t restore_error = RESTORE_E_SUCCESS;
 
 	// no context exists so bail
-	if(client == NULL) {
+	if (client == NULL) {
 		return -1;
 	}
 
-	if(client->srnm == NULL) {
-		error("ERROR: no SerialNumber in client data!\n");
+	if (client->ecid == 0) {
+		error("ERROR: no ECID in client data!\n");
 		return -1;
 	}
 
 	// create our restore client if it doesn't yet exist
-	if(client->restore == NULL) {
+	if (client->restore == NULL) {
 		client->restore = (struct restore_client_t*) malloc(sizeof(struct restore_client_t));
 		if(client->restore == NULL) {
 			error("ERROR: Out of memory\n");

@@ -1,8 +1,8 @@
-818c818
+815c815
 <                 sprintf(zfn + strlen(zfn), "/" FMT_qu "-%s-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version, client->build);
 ---
 >                 sprintf(zfn + strlen(zfn), "/" FMT_qu "-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version);
-1058,1063c1058,1059
+1055,1060c1055,1056
 <         off_t fssize = 0;
 <         ipsw_get_file_size(client->ipsw, fsname, &fssize);
 <         if ((fssize > 0) && (st.st_size == fssize)) {
@@ -12,7 +12,7 @@
 ---
 >         info("Using cached filesystem from '%s'\n", tmpf);
 >         filesystem = strdup(tmpf);
-1241,1518c1237
+1238,1515c1234
 <             
 <             if (!strcmp(client->device->product_type, "iPhone3,3")) {
 <                 /*
@@ -293,7 +293,7 @@
 <             client->otamanifest = "BuildManifest_New.plist";
 ---
 >             client->otamanifest = "tmp/BuildManifest.plist";
-1723,1974c1442
+1720,1971c1439
 <                 printf("Downloading baseband firmware.\n");
 <                 plist_get_string_val(bbfw_path, &bbfwpath);
 <                 
@@ -548,11 +548,11 @@
 <                 client->basebandPath = "bbfw.tmp";
 ---
 >                 client->basebandPath = "tmp/bbfw.tmp";
-2614c2082
+2611c2079
 <                 sprintf(zfn, "%s/shsh/" FMT_qu "-%s-%s-%s.shsh", client->cache_dir, (long long int)client->ecid, client->device->product_type, client->version, client->build);
 ---
 >                 sprintf(zfn, "%s/shsh/" FMT_qu "-%s-%s.shsh", client->cache_dir, (long long int)client->ecid, client->device->product_type, client->version);
-2616c2084
+2613c2081
 <                 sprintf(zfn, "shsh/" FMT_qu "-%s-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version, client->build);
 ---
 >                 sprintf(zfn, "shsh/" FMT_qu "-%s-%s.shsh", (long long int)client->ecid, client->device->product_type, client->version);

@@ -481,6 +481,11 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
         error("ERROR: Unable to discover device model\n");
         return -1;
     }
+    if (get_ecid(client, &client->ecid) < 0) {
+        error("ERROR: Unable to find device ECID\n");
+        return -1;
+    }
+    info("Found ECID " FMT_qu "\n", (long long unsigned int)client->ecid);
     idevicerestore_progress(client, RESTORE_STEP_DETECT, 0.2);
     info("Identified device as %s, %s\n", client->device->hardware_model, client->device->product_type);
     
@@ -757,14 +762,6 @@ int idevicerestore_start(struct idevicerestore_client_t* client)
     idevicerestore_progress(client, RESTORE_STEP_PREPARE, 0.0);
     /* retrieve shsh blobs if required */
     if (tss_enabled) {
-        debug("Getting device's ECID for TSS request\n");
-        /* fetch the device's ECID for the TSS request */
-        if (get_ecid(client, &client->ecid) < 0) {
-            error("ERROR: Unable to find device ECID\n");
-            return -1;
-        }
-        info("Found ECID " FMT_qu "\n", (long long unsigned int)client->ecid);
-        
         if (client->build_major > 8) {
             unsigned char* nonce = NULL;
             int nonce_size = 0;
