@@ -407,8 +407,8 @@ int main(int argc, char* argv[]) {
         
     }
     
-    int hasCydia;
-    int hasUntether;
+    char hasCydia = FALSE;
+    char hasUntether = FALSE;
     const char *untetherPath;
     const char *cydiaPath;
     AbstractFile* cydiaFile;
@@ -416,13 +416,13 @@ int main(int argc, char* argv[]) {
     StringValue* cydiaValue;
     StringValue* untetherValue;
     StringValue* hwmodelValue;
-    
+
     cydiaValue = (StringValue*) getValueByKey(info, "PackagePath");
     if(cydiaValue) {
         cydiaPath = cydiaValue->value;
         cydiaFile = createAbstractFileFromFile(fopen(cydiaPath, "rb"));
         if(cydiaFile) {
-            hasCydia = 1;
+            hasCydia = TRUE;
             defaultRootSize += (cydiaFile->getLength(cydiaFile) + 1024 * 1024 - 1) / (1024 * 1024);
             cydiaFile->close(cydiaFile);
             XLOG(0, "[*] Found: Cydia\n");
@@ -435,7 +435,7 @@ int main(int argc, char* argv[]) {
         
         untetherFile = createAbstractFileFromFile(fopen(untetherPath, "rb"));
         if(untetherFile) {
-            hasUntether = 1;
+            hasUntether = TRUE;
             defaultRootSize += (untetherFile->getLength(untetherFile) + 1024 * 1024 - 1) / (1024 * 1024);
             untetherFile->close(untetherFile);
             XLOG(0, "[*] Found: Untether\n");
@@ -523,7 +523,7 @@ int main(int argc, char* argv[]) {
         tarFile->close(tarFile);
     }
     
-    if(hasCydia == 1){
+    if(hasCydia){
         XLOG(0, "[*] Installing Cydia package\n");
         AbstractFile* cydiaTarFile;
         
@@ -560,7 +560,7 @@ int main(int argc, char* argv[]) {
         move(movingAllFiles[4], movingAllFiles[5], rootVolume);
     }
     
-    if(hasUntether == 1){
+    if(hasUntether){
         XLOG(0, "[*] Installing untether package\n");
         AbstractFile* untetherTarFile;
         
