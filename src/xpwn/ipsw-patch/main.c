@@ -121,6 +121,7 @@ int main(int argc, char* argv[]) {
     char needPref = FALSE;
     char usedaibutsu = FALSE;
     char usepunchd = FALSE;
+    char passDelete = FALSE;
     
     unsigned int key[32];
     unsigned int iv[16];
@@ -291,6 +292,10 @@ int main(int argc, char* argv[]) {
 
         if(strcmp(patchDict->dValue.key, "Update Ramdisk") == 0) {
             updateRamdiskFSPathInIPSW = fileValue->value;
+        }
+
+        if(strcmp(patchDict->dValue.key, "WTF 2") == 0) {
+            passDelete = TRUE;
         }
 
         patchValue = (StringValue*) getValueByKey(patchDict, "Patch2");
@@ -683,6 +688,10 @@ int main(int argc, char* argv[]) {
     
     StringValue* optionsValue = (StringValue*) getValueByKey(info, "RamdiskOptionsPath");
     const char *optionsPlist = optionsValue ? optionsValue->value : "/usr/local/share/restore/options.plist";
+    const char *passPath = "/usr/local/share/restore/PASS.png";
+    if (passDelete) {
+        removeFile(passPath, ramdiskVolume);
+    }
     createRestoreOptions(ramdiskVolume, optionsPlist, preferredRootSize, updateBB);
     
     if(usedaibutsu){
