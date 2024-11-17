@@ -476,7 +476,7 @@ int main(int argc, char* argv[]) {
     }
 
     firmwarePatches = (Dictionary*)getValueByKey(info, "FilesystemPatches");
-    patchArray = (ArrayValue*) firmwarePatches->values;
+    patchArray = firmwarePatches ? (ArrayValue*) firmwarePatches->values : NULL;
     while(patchArray != NULL) {
         for(i = 0; i < patchArray->size; i++) {
             patchDict = (Dictionary*) patchArray->values[i];
