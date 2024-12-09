@@ -48,27 +48,27 @@ jobs:
           name: xpwn_win
           path: bin/
 
-  idevicererestore-linux:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
+  # idevicererestore-linux:
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Run compile script
-        run: |
-          cd ./src/idevicererestore
-          ./compile.sh patch
-          mv idevicerestore/bin ../..
-          cd ../..
+  #     - name: Run compile script
+  #       run: |
+  #         cd ./src/idevicererestore
+  #         ./compile.sh patch
+  #         mv idevicerestore/bin ../..
+  #         cd ../..
 
-      - name: Zip files
-        run: zip -r idevicererestore_linux.zip bin/
+  #     - name: Zip files
+  #       run: zip -r idevicererestore_linux.zip bin/
 
-      - name: Update latest release
-        uses: pyTooling/Actions/releaser@main
-        with:
-          tag: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: idevicererestore_linux.zip
+  #     - name: Update latest release
+  #       uses: pyTooling/Actions/releaser@main
+  #       with:
+  #         tag: latest
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         files: idevicererestore_linux.zip
 
   # idevicererestore-win:
   #   runs-on: windows-latest
