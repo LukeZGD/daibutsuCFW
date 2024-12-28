@@ -3404,22 +3404,17 @@ int main(int argc, char **argv){
     chmod("/private/var/mobile/Library", 0777);
     chmod("/private/var/mobile/Library/Preferences", 0777);
     
-    sleep(1);
-    
     if(isA6 == 1){
         dyld_hack("/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7s", rv);
     } else {
         dyld_hack("/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7", rv);
     }
     
-    sleep(3);
     // syncing disk
+    printf("Syncing disks.\n");
     for(i=0;i<10;i++){
         sync();
     }
-    
-    sleep(5);
-    
-    reboot(0);
+
     return 0;
 }
