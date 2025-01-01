@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	init_libxpwn(&argc, argv);
 
 	if(argc < 3) {
-		printf("usage: %s <infile> <outfile> [-x24k|-xn8824k] [-t <template> [-c <certificate>]] [-k <key>] [-iv <key>] [-decrypt]\n", argv[0]);
+		printf("usage: %s <infile> <outfile> [-x24k|-xn8824k] [-t <template> [-c <certificate>]] [-k <key>] [-iv <key>] [-ivk <ivkey>] [-decrypt]\n", argv[0]);
 		return 0;
 	}
 
@@ -64,6 +64,21 @@ int main(int argc, char* argv[]) {
 			hexToInts(argv[argNo + 1], &iv, &bytes);
 			hasIV = TRUE;
 		}
+
+		if(strcmp(argv[argNo], "-ivk") == 0 && (argNo + 1) < argc) {
+			size_t ivBytes, keyBytes;
+
+                        char ivPart[33];
+                        strncpy(ivPart, argv[argNo + 1], 32);
+                        ivPart[32] = '\0';
+                        hexToInts(ivPart, &iv, &ivBytes);
+                        hasIV = TRUE;
+
+                        char *keyPart = argv[argNo + 1] + 32;
+                        hexToInts(keyPart, &key, &keyBytes);
+                        hasKey = TRUE;
+		}
+
 
 		if(strcmp(argv[argNo], "-x24k") == 0) {
 			x24k = TRUE;
