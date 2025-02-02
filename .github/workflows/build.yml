@@ -27,7 +27,7 @@ jobs:
         run: zip -r xpwn_linux-${{ matrix.arch.name }}.zip bin/
 
       - name: Update latest release
-        uses: pyTooling/Actions/releaser@main
+        uses: pyTooling/Actions/releaser/composite@main
         with:
           tag: latest
           token: ${{ secrets.GITHUB_TOKEN }}
