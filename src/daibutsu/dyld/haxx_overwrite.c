@@ -3398,18 +3398,18 @@ int main(int argc, char **argv){
         reboot(0);
     }
     
-    chmod("/private", 0777);
-    chmod("/private/var", 0777);
-    chmod("/private/var/mobile", 0777);
-    chmod("/private/var/mobile/Library", 0777);
-    chmod("/private/var/mobile/Library/Preferences", 0777);
+    chmod("/mnt1/private", 0777);
+    chmod("/mnt1/private/var", 0777);
+    chmod("/mnt2/mobile", 0777);
+    chmod("/mnt2/mobile/Library", 0777);
+    chmod("/mnt2/mobile/Library/Preferences", 0777);
     
     sleep(1);
     
     if(isA6 == 1){
-        dyld_hack("/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7s", rv);
+        dyld_hack("/mnt1/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7s", rv);
     } else {
-        dyld_hack("/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7", rv);
+        dyld_hack("/mnt1/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7", rv);
     }
     
     sleep(3);
