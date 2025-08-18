@@ -2051,6 +2051,7 @@ void offset_init(int rv){
         exportTableOffset = 0x174c5106;
         return;
     }
+    MOV_R0_0__BX_LR += 0x10;
 }
 
 int dyld_hack(char *infile, int rv){
@@ -3398,28 +3399,37 @@ int main(int argc, char **argv){
         reboot(0);
     }
     
+#ifdef LIVE
+    chmod("/private", 0777);
+    chmod("/private/var", 0777);
+    chmod("/private/var/mobile", 0777);
+    chmod("/private/var/mobile/Library", 0777);
+    chmod("/private/var/mobile/Library/Preferences", 0777);
+    if(isA6 == 1)
+        dyld_hack("/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7s", rv);
+    else
+        dyld_hack("/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7", rv);
+#else
     chmod("/mnt1/private", 0777);
     chmod("/mnt1/private/var", 0777);
     chmod("/mnt2/mobile", 0777);
     chmod("/mnt2/mobile/Library", 0777);
     chmod("/mnt2/mobile/Library/Preferences", 0777);
-    
-    sleep(1);
-    
-    if(isA6 == 1){
+    if(isA6 == 1)
         dyld_hack("/mnt1/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7s", rv);
-    } else {
+    else
         dyld_hack("/mnt1/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7", rv);
-    }
-    
-    sleep(3);
+#endif
+
     // syncing disk
+    printf("Syncing disks.\n");
     for(i=0;i<10;i++){
         sync();
     }
-    
-    sleep(5);
-    
+
+#ifndef LIVE
     reboot(0);
+#endif
+
     return 0;
 }
