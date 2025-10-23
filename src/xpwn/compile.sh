@@ -61,15 +61,15 @@ prepare() {
             ! -e /usr/local/lib/libcrypto.a || ! -e /usr/local/lib/libssl.a ]]; then
         #if [[ ! -e /usr/local/lib/libbz2.a || ! -e /usr/local/lib/libz.a ]]; then
             sudo apt update
-            sudo apt remove -y libpng-dev zlib1g-dev
-            sudo apt install -y pkg-config libtool automake g++ cmake git libusb-1.0-0-dev libreadline-dev libssl-dev git autopoint aria2 ca-certificates
+            sudo apt remove -y libssl-dev libpng-dev zlib1g-dev
+            sudo apt install -y pkg-config libtool automake g++ cmake git libusb-1.0-0-dev libreadline-dev git autopoint aria2 ca-certificates
 
             mkdir tmp
             cd tmp
             git clone https://github.com/madler/zlib
             aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
             aria2c https://download.sourceforge.net/libpng/libpng-1.6.50.tar.gz
-            #aria2c https://www.openssl.org/source/openssl-$sslver.tar.gz
+            aria2c https://www.openssl.org/source/openssl-$sslver.tar.gz
 
             tar -zxvf bzip2-1.0.8.tar.gz
             cd bzip2-1.0.8
@@ -90,7 +90,6 @@ prepare() {
             sudo make install
             cd ..
 
-            : '
             tar -zxvf openssl-$sslver.tar.gz
             cd openssl-$sslver
             if [[ $(uname -m) == "a"* && $(getconf LONG_BIT) == 64 ]]; then
@@ -105,7 +104,6 @@ prepare() {
             sudo make install_sw install_ssldirs
             sudo rm -rf /usr/local/lib/libcrypto.so* /usr/local/lib/libssl.so*
             cd ..
-            '
 
             cd ..
             rm -rf tmp
