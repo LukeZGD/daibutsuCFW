@@ -7,8 +7,8 @@
 #include <inttypes.h>
 
 #define SECTORS_AT_A_TIME 0x200
+#define IGNORE_THRESHOLD  SECTORS_AT_A_TIME * 2
 #define USE_IGNORE_BLOCKS 1 // allow creation of BLOCK_IGNORE
-#define RELAX_TOWARDS_END 1 // relax threshold towards the end
 #define USE_BIG_ZERO_RUNS 0 // compress zero-blocks in one go if they are below threshold
 
 // Okay, this value sucks. You shouldn't touch it because it affects how many ignore sections get added to the blkx list
@@ -30,14 +30,13 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 	uint32_t roomForRuns;
 	uint32_t curRun;
 	uint64_t curSector;
+	uint64_t curOff;
 	
 	unsigned char* inBuffer;
 	unsigned char* outBuffer;
 	size_t bufferSize;
 	size_t have;
 	int ret;
-	
-	int IGNORE_THRESHOLD = 100000;
 
 	z_stream strm;	
 	
@@ -104,6 +103,8 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 		strm.zalloc = Z_NULL;
 		strm.zfree = Z_NULL;
 		strm.opaque = Z_NULL;
+
+		curOff = startOff + (blkx->sectorCount - numSectors) * SECTOR_SIZE;
 		
 		int amountRead;
 		if(!USE_IGNORE_BLOCKS)
@@ -147,70 +148,34 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 
 				if(counter < counter_max)
 				{
-					if(sectorsToSkip > IGNORE_THRESHOLD)
+					if(sectorsToSkip < IGNORE_THRESHOLD)
 					{
-						//printf("Seeking back to %" PRId64 "\n", curOff + (skipInBuffer * SECTOR_SIZE));
-						//in->seek(in, curOff + (skipInBuffer * SECTOR_SIZE));
-					} else {
-						//printf("Breaking out: %d / %d\n", (size_t) counter, (size_t) counter_max);
+						blkx->runs[curRun].sectorCount = (numSectors > SECTORS_AT_A_TIME) ? SECTORS_AT_A_TIME : numSectors;
+						in->seek(in, curOff);
+						ASSERT((amountRead = in->read(in, inBuffer, blkx->runs[curRun].sectorCount * SECTOR_SIZE)) == (blkx->runs[curRun].sectorCount * SECTOR_SIZE), "mRead");
 					}
 					break;
 				}
 			}
 
-			if(RELAX_TOWARDS_END && sectorsToSkip + 2 >= numSectors) {
-				// the end is near, relax the threshold
-				IGNORE_THRESHOLD = 0;
-			}
-			if(sectorsToSkip > IGNORE_THRESHOLD)
+			if(sectorsToSkip >= IGNORE_THRESHOLD)
 			{
-				int remainder = sectorsToSkip & 0xf;
+				blkx->runs[curRun].type = BLOCK_IGNORE;
+				blkx->runs[curRun].reserved = 0;
+				blkx->runs[curRun].sectorStart = curSector;
+				blkx->runs[curRun].sectorCount = sectorsToSkip;
+				blkx->runs[curRun].compOffset = out->tell(out) - blkx->dataStart;
+				blkx->runs[curRun].compLength = 0;
 
-				if(sectorsToSkip != remainder)
-				{
-					blkx->runs[curRun].type = BLOCK_IGNORE;
-					blkx->runs[curRun].reserved = 0;
-					blkx->runs[curRun].sectorStart = curSector;
-					blkx->runs[curRun].sectorCount = sectorsToSkip - remainder;
-					blkx->runs[curRun].compOffset = out->tell(out) - blkx->dataStart;
-					blkx->runs[curRun].compLength = 0;
+				printf("run %d: skipping sectors=%" PRId64 ", left=%d\n", curRun, (int64_t) sectorsToSkip, numSectors);
 
-					printf("run %d: skipping sectors=%" PRId64 ", left=%d\n", curRun, (int64_t) sectorsToSkip - remainder, numSectors);
-
-					curSector += blkx->runs[curRun].sectorCount;
-					numSectors -= blkx->runs[curRun].sectorCount;
-
-					curRun++;
-
-					if(curRun >= roomForRuns) {
-						roomForRuns <<= 1;
-						blkx = (BLKXTable*) realloc(blkx, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
-					}
+				curSector += blkx->runs[curRun].sectorCount;
+				numSectors -= blkx->runs[curRun].sectorCount;
+				curRun++;
+				if(curRun >= roomForRuns) {
+					roomForRuns <<= 1;
+					blkx = (BLKXTable*) realloc(blkx, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
 				}
-
-				if(remainder > 0)
-				{
-					blkx->runs[curRun].type = BLOCK_IGNORE;
-					blkx->runs[curRun].reserved = 0;
-					blkx->runs[curRun].sectorStart = curSector;
-					blkx->runs[curRun].sectorCount = remainder;
-					blkx->runs[curRun].compOffset = out->tell(out) - blkx->dataStart;
-					blkx->runs[curRun].compLength = 0;
-
-					printf("run %d: skipping sectors=%" PRId64 ", left=%d\n", curRun, (int64_t) remainder, numSectors);
-
-					curSector += blkx->runs[curRun].sectorCount;
-					numSectors -= blkx->runs[curRun].sectorCount;
-
-					curRun++;
-
-					if(curRun >= roomForRuns) {
-						roomForRuns <<= 1;
-						blkx = (BLKXTable*) realloc(blkx, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
-					}
-				}
-
-				IGNORE_THRESHOLD = 0;
 				
 				continue;
 			}
