@@ -500,7 +500,7 @@ HFSPlusCatalogRecord* getRecordFromPath(const char* path, Volume* volume, char *
 }
 
 HFSPlusCatalogRecord* getRecordFromPath2(const char* path, Volume* volume, char **name, HFSPlusCatalogKey* retKey, char traverse) {
-	return getRecordFromPath3(path, volume, name, retKey, traverse, TRUE, kHFSRootFolderID);
+	return getRecordFromPath3(path, volume, name, retKey, TRUE, TRUE, kHFSRootFolderID);
 }
 
 HFSPlusCatalogRecord* getRecordFromPath3(const char* path, Volume* volume, char **name, HFSPlusCatalogKey* retKey, char traverse, char returnLink, HFSCatalogNodeID parentID) {
@@ -815,9 +815,6 @@ int removeFile(const char* fileName, Volume* volume) {
 			io = openRawFile(((HFSPlusCatalogFile*)record)->fileID, &((HFSPlusCatalogFile*)record)->dataFork, record, volume);
 			allocate((RawFile*)io->data, 0);
 			CLOSE(io);
-			io = openRawFile(((HFSPlusCatalogFile*)record)->fileID, &((HFSPlusCatalogFile*)record)->resourceFork, record, volume);
-			allocate((RawFile*)io->data, 0);
-			CLOSE(io);
 
 			removeFromBTree(volume->catalogTree, (BTKey*)(&key));
 			XAttrList* next;
@@ -877,6 +874,7 @@ int removeFile(const char* fileName, Volume* volume) {
 
 		return TRUE;
 	} else {
+		free(parentFolder);
 		ASSERT(FALSE, "cannot find record");
 		return FALSE;
 	}
@@ -946,18 +944,12 @@ HFSCatalogNodeID newFolder(const char* pathName, Volume* volume) {
     name = lastSeparator + 1;
     *lastSeparator = '\0';
     parentFolder = (HFSPlusCatalogFolder*) getRecordFromPath(path, volume, NULL, NULL);  
-    if(parentFolder == NULL) {
-      /* try to create parent now */
-      if (newFolder(path, volume)) {
-        parentFolder = (HFSPlusCatalogFolder*) getRecordFromPath(path, volume, NULL, NULL);  
-      }
-    }
   }
 
   if(parentFolder == NULL || parentFolder->recordType != kHFSPlusFolderRecord) {
     free(path);
     free(parentFolder);
-    return 0;
+    return FALSE;
   }
   
   newFolderID = volume->volumeHeader->nextCatalogID++;

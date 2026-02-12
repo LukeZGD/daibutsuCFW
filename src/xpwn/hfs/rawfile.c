@@ -374,7 +374,6 @@ int writeExtents(RawFile* rawFile) {
 	if(extent != NULL) {
 		extentKey.keyLength = sizeof(HFSPlusExtentKey) - sizeof(extentKey.keyLength);
 		extentKey.forkType = 0;
-		extentKey.pad = 0;
 		extentKey.fileID = rawFile->id;
 
 		currentExtent = 0;

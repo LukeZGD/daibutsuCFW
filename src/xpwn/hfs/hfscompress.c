@@ -68,18 +68,9 @@ static int compressedRead(io_func* io, off_t location, size_t size, void *buffer
 		if(data->cached)
 			free(data->cached);
 
-		if (compressed[0] == 0xFF) {
-			actualSize = data->blocks->blocks[block].size - 1;
-			data->cached = (uint8_t*) malloc(actualSize);
-			memcpy(data->cached, compressed + 1, actualSize);
-		} else {
-			data->cached = (uint8_t*) malloc(0x10000);
-			actualSize = 0x10000;
-			int rv = uncompress(data->cached, &actualSize, compressed, data->blocks->blocks[block].size);
-			if (rv) {
-				hfs_panic("error decompressing");
-			}
-		}
+		data->cached = (uint8_t*) malloc(0x10000);
+		actualSize = 0x10000;
+		uncompress(data->cached, &actualSize, compressed, data->blocks->blocks[block].size);
 		data->cachedStart = block * 0x10000;
 		data->cachedEnd = data->cachedStart + actualSize;
 		free(compressed);
@@ -122,8 +113,6 @@ static void closeHFSPlusCompressed(io_func* io) {
 		CLOSE(data->io);
 
 	if(data->dirty) {
-		int oldSize = data->decmpfsSize;
-
 		if(data->blocks)
 			free(data->blocks);
 
@@ -155,15 +144,9 @@ static void closeHFSPlusCompressed(io_func* io) {
 			// check if we can fit the whole thing into an inline extended attribute
 			// a little fudge factor here since sizeof(HFSPlusAttrKey) is bigger than it ought to be, since only 127 characters are strictly allowed
 			if(numBlocks <= 1 && (actualSize + sizeof(HFSPlusDecmpfs) + sizeof(HFSPlusAttrKey)) <= 0x1000) {
-				int newSize = (sizeof(HFSPlusDecmpfs) + actualSize + 1) & ~1;
-				if (oldSize < newSize) {
-					printf("growing ");
-					data->decmpfs = realloc(data->decmpfs, newSize);
-					memset(data->decmpfs->data + actualSize, 0, newSize - actualSize - sizeof(HFSPlusDecmpfs));
-				}
 				data->decmpfs->flags = 0x3;
 				memcpy(data->decmpfs->data, buffer, actualSize);
-				data->decmpfsSize = newSize;
+				data->decmpfsSize = sizeof(HFSPlusDecmpfs) + actualSize;
 				printf("inline data\n");
 				break;
 			} else {
