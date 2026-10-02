@@ -1,17 +1,14 @@
 #!/bin/bash
 
-arg="ipsw"
 cmake=/usr/bin/cmake
 
 for i in "$@"; do
     if [[ $i == "help" ]]; then
-        echo "Usage: $0 <all> <help>"
-        echo "    <all>: All xpwn binaries"
+        echo "Usage: $0 <help>"
         echo "    <help>: Display this help prompt"
         exit 0
     elif [[ $i == "all" ]]; then
         echo "* Build all"
-        arg=
     fi
 done
 
@@ -136,26 +133,14 @@ prepare() {
             sudo rm -rf /usr/local/lib/libcrypto.so* /usr/local/lib/libssl.so*
             cd ..
 
+            curl -LO https://opensource.apple.com/tarballs/cctools/cctools-927.0.2.tar.gz
+            mkdir cctools-tmp
+            tar -xzf cctools-927.0.2.tar.gz -C cctools-tmp/
+            sed -i "s_#include_//_g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
+            sed -i -e "s=<stdint.h>=\n#include <stdint.h>\ntypedef int integer_t;\ntypedef integer_t cpu_type_t;\ntypedef integer_t cpu_subtype_t;\ntypedef integer_t cpu_threadtype_t;\ntypedef int vm_prot_t;=g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
+            sudo cp -r cctools-tmp/*cctools-927.0.2/include/* /usr/local/include/
+
             cd ..
-            rm -rf tmp
-        fi
-
-    elif [[ $OSTYPE == "msys" ]]; then
-        platform="win"
-        echo "* Platform: Windows MSYS2"
-
-        if [[ ! -e /usr/lib/libpng.a ]]; then
-            echo "* Note that if your msys-runtime is outdated, MSYS2 prompt may close after updating."
-            echo "* If this happens, reopen the MSYS2 prompt and run the script again"
-            pacman -Syu --noconfirm --needed cmake git libbz2-devel make msys2-devel openssl-devel zip zlib-devel
-            mkdir tmp
-            cd tmp
-            git clone https://github.com/glennrp/libpng
-            cd libpng
-            ./configure
-            make
-            make install
-            cd ../..
             rm -rf tmp
         fi
 
@@ -166,17 +151,11 @@ prepare() {
 }
 
 build() {
-    if [[ $platform == "win" ]]; then
-        cd ipsw-patch
-        patch main.c < main.patch
-        cd ..
-    fi
-
     rm -rf bin new
-    mkdir bin new
+    mkdir -p bin new
     cd new
     $cmake ..
-    make $JNUM $arg
+    make all
 
     if [[ $1 == "all" ]]; then
         cp common/libcommon.a ../bin
@@ -185,34 +164,17 @@ build() {
         cp hfs/hfsplus ../bin
         cp ipsw-patch/imagetool ../bin
         cp ipsw-patch/ipsw ../bin
-        cp ipsw-patch/ticket ../bin
-        cp ipsw-patch/validate ../bin
         cp ipsw-patch/xpwntool ../bin
         cp ipsw-patch/libxpwn.a ../bin
-        if [[ $platform != "win" ]]; then
-            cd ..
-            rm -rf new
-            echo "Done! Builds at bin/"
-            exit 0
-        fi
     else
-        cp ipsw-patch/ipsw ../bin/ipsw_$platform
+        cp ipsw-patch/ipsw ../bin/powdersn0w
+        cp ipsw-patch/ticket ../bin/
+        cp ipsw-patch/validate ../bin/
     fi
+
     cd ..
-
-    if [[ $platform == "win" ]]; then
-        rm -rf new/*
-        cd ipsw-patch
-        patch -R main.c < main.patch
-        cd ../new
-        $cmake ..
-        make $JNUM ipsw
-        cp ipsw-patch/ipsw ../bin/ipsw2
-        cd ..
-    fi
-
     rm -rf new
-    echo "Done! Build at bin/ipsw_$platform"
+    echo "Done! Builds at bin/"
 }
 
 cleanup() {
