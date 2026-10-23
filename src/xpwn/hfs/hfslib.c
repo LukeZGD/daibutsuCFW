@@ -359,7 +359,49 @@ void addAllInFolder(HFSCatalogNodeID folderID, Volume* volume, const char* paren
 			list = list->next;
 		}
 		
-		if((tmp = opendir(ent->d_name)) != NULL) {
+		struct stat st;
+		ASSERT (lstat(ent->d_name, &st) == 0, "lstat");
+
+		if(S_ISLNK(st.st_mode))
+		{
+			printf("link: %s\n", fullName);	fflush(stdout);
+
+			io_func* io;
+			HFSPlusCatalogFile* record;
+
+			record = (HFSPlusCatalogFile*) getRecordFromPath3(fullName, volume, NULL, NULL, TRUE, FALSE, kHFSRootFolderID);
+
+			if(!record)
+			{
+				newFile(fullName, volume);
+				record = (HFSPlusCatalogFile*) getRecordFromPath(fullName, volume, NULL, NULL);
+				if(record)
+				{
+					record->permissions.fileMode |= S_IFLNK;
+					record->userInfo.fileType = kSymLinkFileType;
+					record->userInfo.fileCreator = kSymLinkCreator;
+					updateCatalog(volume, (HFSPlusCatalogRecord*) record);
+
+					io = openRawFile(record->fileID, &record->dataFork, (HFSPlusCatalogRecord*) record, volume);
+
+					char target[1024 + 1] = {'\0'};
+					int rv = readlink(ent->d_name, target, 1024);
+
+					printf("file link: %s %s\n", ent->d_name, target);	fflush(stdout);
+
+					if (rv != -1)
+					{
+						WRITE(io, 0, strlen(target), (void*) target);
+					}
+					CLOSE(io);
+				}
+			}
+
+
+			free(record);
+
+		}
+		else if((tmp = opendir(ent->d_name)) != NULL) {
 			closedir(tmp);
 			printf("folder: %s\n", fullName); fflush(stdout);
 			
@@ -383,6 +425,12 @@ void addAllInFolder(HFSCatalogNodeID folderID, Volume* volume, const char* paren
 			writeToHFSFile(outFile, file, volume);
 			file->close(file);
 			free(outFile);
+
+			/* Copy permissions from the source file */
+			struct stat st;
+			ASSERT (lstat(ent->d_name, &st) == 0, "lstat");
+			chmodFile(fullName, (int)st.st_mode, volume);
+			printf("Setting permissions to %06o for %s\n", st.st_mode, fullName);
 			
 			if(strncmp(fullName, "/Applications/", sizeof("/Applications/") - 1) == 0) {
 				testBuffer[0] = '\0';
@@ -668,7 +716,7 @@ void hfs_ls(Volume* volume, const char* path) {
 		printf("No such file or directory\n");
 	}
 
-	printf("Total filesystem size: %d, free: %d\n", (volume->volumeHeader->totalBlocks - volume->volumeHeader->freeBlocks) * volume->volumeHeader->blockSize, volume->volumeHeader->freeBlocks * volume->volumeHeader->blockSize);
+	printf("Total filesystem size: %lld, free: %lld\n", ((uint64_t)(volume->volumeHeader->totalBlocks - volume->volumeHeader->freeBlocks)) * volume->volumeHeader->blockSize, ((uint64_t)volume->volumeHeader->freeBlocks) * volume->volumeHeader->blockSize); // cast to uint64_t to be platform independent.
 	
 	free(record);
 }
