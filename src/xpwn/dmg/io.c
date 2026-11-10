@@ -10,7 +10,7 @@
 
 BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorNumber, uint32_t numSectors, uint32_t blocksDescriptor,
 			uint32_t checksumType, ChecksumFunc uncompressedChk, void* uncompressedChkToken, ChecksumFunc compressedChk,
-			void* compressedChkToken, Volume* volume) {
+			void* compressedChkToken, Volume* volume, int addComment) {
 	BLKXTable* blkx;
 
 	uint32_t roomForRuns;
@@ -55,6 +55,24 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 	curRun = 0;
 	curSector = 0;
 
+	uint64_t startOff = in->tell(in);
+
+	if(addComment)
+	{
+		blkx->runs[curRun].type = BLOCK_COMMENT;
+		blkx->runs[curRun].reserved = 0x2B626567;
+		blkx->runs[curRun].sectorStart = curSector;
+		blkx->runs[curRun].sectorCount = 0;
+		blkx->runs[curRun].compOffset = out->tell(out) - blkx->dataStart;
+		blkx->runs[curRun].compLength = 0;
+		curRun++;
+
+		if(curRun >= roomForRuns) {
+			roomForRuns <<= 1;
+			blkx = (BLKXTable*) realloc(blkx, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
+		}
+	}
+
 	while(numSectors > 0) {
 		if(curRun >= roomForRuns) {
 			roomForRuns <<= 1;
@@ -94,7 +112,7 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 		}
 		have = bufferSize - strm.avail_out;
 
-		if((have / SECTOR_SIZE) > blkx->runs[curRun].sectorCount) {
+		if((have / SECTOR_SIZE) >= (blkx->runs[curRun].sectorCount - 15)) {
 			blkx->runs[curRun].type = BLOCK_RAW;
 			ASSERT(out->write(out, inBuffer, blkx->runs[curRun].sectorCount * SECTOR_SIZE) == (blkx->runs[curRun].sectorCount * SECTOR_SIZE), "fwrite");
 			blkx->runs[curRun].compLength += blkx->runs[curRun].sectorCount * SECTOR_SIZE;
@@ -121,6 +139,22 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 	if(curRun >= roomForRuns) {
 		roomForRuns <<= 1;
 		blkx = (BLKXTable*) realloc(blkx, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
+	}
+
+	if(addComment)
+	{
+		blkx->runs[curRun].type = BLOCK_COMMENT;
+		blkx->runs[curRun].reserved = 0x2B656E64;
+		blkx->runs[curRun].sectorStart = curSector;
+		blkx->runs[curRun].sectorCount = 0;
+		blkx->runs[curRun].compOffset = out->tell(out) - blkx->dataStart;
+		blkx->runs[curRun].compLength = 0;
+		curRun++;
+
+		if(curRun >= roomForRuns) {
+			roomForRuns <<= 1;
+			blkx = (BLKXTable*) realloc(blkx, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
+		}
 	}
 
 	blkx->runs[curRun].type = BLOCK_TERMINATOR;
