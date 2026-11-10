@@ -6,7 +6,7 @@
 #include <dmg/dmg.h>
 #include <inttypes.h>
 
-#define SECTORS_AT_A_TIME 0x800
+#define SECTORS_AT_A_TIME_DEFAULT 0x800
 
 BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorNumber, uint32_t numSectors, uint32_t blocksDescriptor,
 			uint32_t checksumType, ChecksumFunc uncompressedChk, void* uncompressedChkToken, ChecksumFunc compressedChk,
@@ -25,6 +25,18 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 
 	z_stream strm;
 
+	const char* envSectors = getenv("SECTORS_AT_A_TIME");
+	uint32_t sectorsAtATime = SECTORS_AT_A_TIME_DEFAULT;
+
+	if (envSectors && *envSectors) {
+		char* end;
+		unsigned long value = strtoul(envSectors, &end, 0);
+
+		if (*end == '\0' && value > 0 && value <= UINT32_MAX) {
+			sectorsAtATime = (uint32_t)value;
+		}
+	}
+
 	blkx = (BLKXTable*) malloc(sizeof(BLKXTable) + (2 * sizeof(BLKXRun)));
 	roomForRuns = 2;
 	memset(blkx, 0, sizeof(BLKXTable) + (roomForRuns * sizeof(BLKXRun)));
@@ -34,7 +46,7 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 	blkx->firstSectorNumber = firstSectorNumber;
 	blkx->sectorCount = numSectors;
 	blkx->dataStart = 0;
-	blkx->decompressBufferRequested = SECTORS_AT_A_TIME + 8;
+	blkx->decompressBufferRequested = sectorsAtATime + 8;
 	blkx->blocksDescriptor = blocksDescriptor;
 	blkx->reserved1 = 0;
 	blkx->reserved2 = 0;
@@ -64,7 +76,7 @@ BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorN
 		blkx->runs[curRun].type = BLOCK_ZLIB;
 		blkx->runs[curRun].reserved = 0;
 		blkx->runs[curRun].sectorStart = curSector;
-		blkx->runs[curRun].sectorCount = (numSectors > SECTORS_AT_A_TIME) ? SECTORS_AT_A_TIME : numSectors;
+		blkx->runs[curRun].sectorCount = (numSectors > sectorsAtATime) ? sectorsAtATime : numSectors;
 
 		memset(&strm, 0, sizeof(strm));
 		strm.zalloc = Z_NULL;
